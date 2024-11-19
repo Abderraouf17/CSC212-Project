@@ -30,4 +30,25 @@ public class Read {
         }
         return count;
     }
+
+    public void loadStopWords(String stopWordsPath) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(stopWordsPath));
+            String line;
+            while ((line = br.readLine()) != null) {
+                stopWords.insert(line.trim().toLowerCase());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
