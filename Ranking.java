@@ -1,4 +1,5 @@
 
+
 public class Ranking {
 
     class Doc_Rank {

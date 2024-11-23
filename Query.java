@@ -1,3 +1,4 @@
+
 public class Query {
     private InvertedIndex inv; // Instance variable for InvertedIndex
 
