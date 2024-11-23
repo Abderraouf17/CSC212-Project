@@ -47,15 +47,15 @@ public class Index {
             // Iterate over the words in the document
             document.words.findFirst();
             while (true) {
-                System.out.print("\"" + document.words.retrieve() + "\""); // Print each word in quotes
+                System.out.print("\"" + document.words.retrieve() + "\"");
                 if (document.words.last()) break; // If it's the last word, stop
-                System.out.print(", "); // Add a comma and space between words
+                System.out.print(", ");
                 document.words.findNext();
             }
-            System.out.println("]"); // Close the word list
+            System.out.println("]");
 
-            if (documents.last()) break; // If it's the last document, stop
-            documents.findNext(); // Move to the next document
+            if (documents.last()) break;
+            documents.findNext();
         }
     }
 
