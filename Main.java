@@ -40,7 +40,7 @@ public class Main {
     }
 
     private static void addWordsToIndexes(LinkedList<String> words, int docId, InvertedIndex invertedIndex,
-                                          BSTInvertedIndex bstInvertedIndex) {
+            BSTInvertedIndex bstInvertedIndex) {
         words.findFirst();
         while (!words.empty() && words.retrieve() != null) {
             String word = words.retrieve();
