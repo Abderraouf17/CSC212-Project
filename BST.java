@@ -1,19 +1,9 @@
 
+public class BST<T> {
 
-public class BST<T>{
-    private static class BSTNode<T> {
-        int key;
-        T data;
-        BSTNode<T> left, right;
 
-        public BSTNode(int key, T data) {
-            this.key = key;
-            this.data = data;
-            left = right = null;
-        }
-    }
 
-    private BSTNode<T> root, current;
+    public BSTNode<T> root, current;
 
     public BST() {
         root = current = null;
@@ -77,20 +67,16 @@ public class BST<T>{
         return true;
     }
 
-
-
     public boolean remove(int k) {
         BSTNode<T> n = root, p = null;
         while (n != null) {
             if (k < n.key) {
                 p = n;
                 n = n.left;
-            }
-            else if (k > n.key) {
+            } else if (k > n.key) {
                 p = n;
                 n = n.right;
-            }
-            else {
+            } else {
                 // case 3
                 if (n.left != null && n.right != null) {
                     BSTNode<T> min = n.right;
@@ -127,11 +113,10 @@ public class BST<T>{
         return false;
     }
 
-    public void deleteSubtree(){
-        if (current == root){
+    public void deleteSubtree() {
+        if (current == root) {
             current = root = null;
-        }
-        else {
+        } else {
             BSTNode<T> n = root, p = null;
             while (n != current) {
                 p = n;
@@ -151,7 +136,7 @@ public class BST<T>{
     }
 
     public void traverse(Order o) {
-        switch(o) {
+        switch (o) {
             case PREORDER:
                 traversePreorder(root);
                 break;
@@ -186,5 +171,24 @@ public class BST<T>{
             traversePostorder(n.right);
             System.out.print(n.data);
         }
+    }
+
+    // Search method to find a node by its key
+
+    public T search(int key) {
+        BSTNode<T> currentNode = root;
+        while (currentNode != null) {
+            if (key == currentNode.key) {
+                return currentNode.data; // Key found, return associated data
+            } else if (key < currentNode.key) {
+                currentNode = currentNode.left; // Traverse left
+            } else {
+                currentNode = currentNode.right; // Traverse right
+            }
+        }
+        return null; // Key not found
+    }
+    public BSTNode<T> getRoot() {
+        return root;
     }
 }
