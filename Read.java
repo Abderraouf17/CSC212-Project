@@ -1,55 +1,129 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+
+import java.io.*;
+import java.util.*;
 
 public class Read {
-    private Array<String[]> documents;
-    private LinkedList<String> stopWords;
+
+    LinkedList<String> stopWords;
+    LinkedList<String> words = new LinkedList<>();
+    Index index;
+    InvertedIndex invIndex;
+
+    int num = 0;
 
     public Read() {
+
         stopWords = new LinkedList<>();
+        index = new Index();
+        invIndex = new InvertedIndex();
     }
 
-    private int countDocuments(String csvPath) {
-        int count = 0;
-        BufferedReader br = null;
+    public void readStopWords(String filename) {
         try {
-            br = new BufferedReader(new FileReader(csvPath));
-            while (br.readLine() != null) {
-                count++;
+            File f = new File(filename);
+            Scanner sc = new Scanner(f);
+            while (sc.hasNextLine()) {
+                String line = sc.nextLine();
+                stopWords.insert(line);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            if (br != null) { // we shouldn't forget to close the buffer .
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        }
+    }
+
+    public void readDocuments(String filename) {
+        String line;
+        try {
+            File f = new File(filename);
+            Scanner sc = new Scanner(f);
+            sc.nextLine();
+            while (sc.hasNextLine()) {
+                line = sc.nextLine();
+                if (line.trim().length() < 3) {
+
+                    break;
+                }
+                String x = line.substring(0, line.indexOf(","));
+                int y = Integer.parseInt(x.trim());
+                System.out.println("Document ID: " + y);
+                String z = line.substring(line.indexOf(",") + 1).trim();
+                System.out.println("Content : " + z);
+
+                LinkedList<String> words = new LinkedList<>();
+
+                index.addDocument(new Document(y, z, words));
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public LinkedList<String> MakeInverted(String content, int id) {
+        LinkedList<String> words_inDoc = new LinkedList<>();
+
+        // Tokenize and clean content
+        content = content.replaceAll("[^a-zA-Z0-9\\s]", "");
+        content = content.toLowerCase();
+        String[] tokens = content.split("\\s+");
+
+        for (String token : tokens) {
+            if (!stopWords.exist(token)) {
+                if (!words.exist(token)) {
+                    words.insert(token);
+                }
+                if (!words_inDoc.exist(token)) {
+                    words_inDoc.insert(token);
+                    invIndex.add(token, id);
                 }
             }
         }
-        return count;
+
+        return words_inDoc;
     }
 
-    public void loadStopWords(String stopWordsPath) {
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(stopWordsPath));
-            String line;
-            while ((line = br.readLine()) != null) {
-                stopWords.insert(line.trim().toLowerCase());
+
+    public boolean is_exist(String var) {
+        if (!stopWords.empty() && stopWords != null) {
+            stopWords.findFirst();
+            while (!stopWords.last()) {
+                if (stopWords.retrieve().equals(var))
+                    return true;
+                stopWords.findNext();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            if (stopWords.retrieve().equals(var))
+                return true;
         }
+        return false;
     }
+
+    public void LoadAll(String Stop, String filename) {
+        readStopWords(Stop);
+        readDocuments(filename);
+    }
+
+    public void display(LinkedList<Integer> list) {
+        if (list.empty()) {
+            System.out.println("No doc here");
+            return;
+        }
+        list.findFirst();
+        while (!list.last()) {
+            Document d = index.getDocument(list.retrieve());
+            if (d != null) {
+                System.out.println("Document ID: " + d.id + " : " + d.tokens + " ");
+            }
+            list.findNext();
+        }
+
+        Document d = index.getDocument(list.retrieve());
+        if (d != null) {
+            System.out.print("Document ID: " + d.getId() + " : " + d.getTokens() + " ");
+        }
+        System.out.println("");
+    }
+
+
+
 }
