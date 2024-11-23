@@ -9,8 +9,8 @@ public class Main {
         Ranking ranking = new Ranking(invertedIndex, reader.index);
 
         // Load stop words and documents
-        reader.readStopWords("src\\csc\\stop.txt");
-        reader.readDocuments("src\\csc\\dataset.csv");
+        reader.readStopWords("stop.txt");
+        reader.readDocuments("dataset.csv");
 
         // Process documents and build both inverted indexes
         processDocuments(reader, invertedIndex, bstInvertedIndex);
