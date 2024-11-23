@@ -1,3 +1,4 @@
+
 public class LinkedList<T> {
 
     private static class Node<T> {
@@ -47,6 +48,17 @@ public class LinkedList<T> {
         current.data = data;
     }
 
+    public boolean exist(T data) {
+        Node<T> temp = head;
+        while (temp != null) {
+            if (temp.data.equals(data)) {
+                return true;
+            }
+            temp = temp.next;
+        }
+        return false;
+    }
+
     public void insert(T data) {
         Node<T> newNode = new Node<T>(data);
 
@@ -73,4 +85,53 @@ public class LinkedList<T> {
 
         current = (current.next == null) ? head : current.next;
     }
+
+    public void display() {
+        Node<T> temp = head;
+        while (temp != null) {
+            System.out.println(temp.data);
+            temp = temp.next;
+        }
+    }
+
+    public boolean contains(T value) {
+        if (empty()) {
+            return false;
+        }
+        findFirst();
+        while (true) {
+            if (retrieve().equals(value)) {
+                return true;
+            }
+            if (last()) {
+                break;
+            }
+            findNext();
+        }
+        return false; // Value not found
+    }
+
+    public T get(int index) {
+        if (index < 0 || index >= size()) {
+            throw new IndexOutOfBoundsException("Index out of bounds");
+        }
+
+        Node<T> current = head;
+        for (int i = 0; i < index; i++) {
+            current = current.next;
+        }
+
+        return current.data;
+    }
+
+    public int size() {
+        int count = 0;
+        Node<T> current = head;
+        while (current != null) {
+            count++;
+            current = current.next;
+        }
+        return count;
+    }
+
 }

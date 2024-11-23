@@ -5,6 +5,7 @@ import java.io.IOException;
 public class Read {
     private Array<String[]> documents;
     private LinkedList<String> stopWords;
+
     public Read() {
         stopWords = new LinkedList<>();
     }
