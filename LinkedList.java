@@ -1,4 +1,5 @@
 
+
 public class LinkedList<T> {
 
     private static class Node<T> {

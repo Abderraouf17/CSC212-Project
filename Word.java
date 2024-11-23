@@ -23,6 +23,8 @@ public class Word {
         }
     }
 
+
+
     public boolean is_exist(Integer var) {
         if (indexs.empty())
             return false;
