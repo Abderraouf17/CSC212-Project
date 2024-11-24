@@ -1,5 +1,3 @@
-
-
 public class Ranking {
 
     class Doc_Rank {
@@ -16,16 +14,27 @@ public class Ranking {
         }
     }
 
+    private InvertedIndex invertedIndex;
+    private BSTInvertedIndex bstInvertedIndex;
+    private Index index;
+    private boolean useBST; // Flag to determine which index type is used
+    private LinkedList<Integer> doc_ids;
+    private LinkedList<Doc_Rank> doc_ranks;
 
-    InvertedIndex inverted_index;
-    Index index;
-    LinkedList<Integer> doc_ids;
-    LinkedList<Doc_Rank> doc_ranks;
-
-    public Ranking(InvertedIndex inverted_index, Index index) {
-        this.inverted_index = inverted_index;
+    // Constructor for InvertedIndex
+    public Ranking(InvertedIndex invertedIndex, Index index) {
+        this.invertedIndex = invertedIndex;
         this.index = index;
+        this.useBST = false; // Use List-based index
+        this.doc_ranks = new LinkedList<Doc_Rank>();
+        this.doc_ids = new LinkedList<Integer>();
+    }
 
+    // Constructor for BSTInvertedIndex
+    public Ranking(BSTInvertedIndex bstInvertedIndex, Index index) {
+        this.bstInvertedIndex = bstInvertedIndex;
+        this.index = index;
+        this.useBST = true; // Use BST-based index
         this.doc_ranks = new LinkedList<Doc_Rank>();
         this.doc_ids = new LinkedList<Integer>();
     }
@@ -43,7 +52,6 @@ public class Ranking {
             doc_ranks.findNext();
         }
         doc_ranks.retrieve().display();
-
     }
 
     public Document getDocument(int id) {
@@ -82,17 +90,24 @@ public class Ranking {
     }
 
     public void RankQ(String Q) {
-        LinkedList<Integer> A = new LinkedList<Integer>();
+
         if (Q.length() == 0) {
             return;
         }
         String[] words = Q.split("\\s+");
-        boolean found = false;
-        for (int i = 0; i < words.length; i++) {
-            found = inverted_index.search(words[i].trim().toLowerCase());
-            if (found) {
-                A = inverted_index.invIndex.retrieve().indexs;
+        doc_ids = new LinkedList<>();
+
+        for (String word : words) {
+            LinkedList<Integer> A;
+            if (useBST) {
+                Word w = bstInvertedIndex.searchWord(word.trim().toLowerCase());
+                A = (w != null) ? w.indexs : new LinkedList<Integer>();
+            } else {
+                boolean found = invertedIndex.search(word.trim().toLowerCase());
+                A = (found) ? invertedIndex.invIndex.retrieve().indexs : new LinkedList<Integer>();
+
             }
+
             Sort(A);
         }
     }
@@ -122,12 +137,12 @@ public class Ranking {
         }
         list.findFirst();
         while (!list.last()) {
-            if (list.retrieve().equals(var)) {
+            if (list.retrieve() == var) {
                 return true;
             }
             list.findNext();
         }
-        if (list.retrieve().equals(var)) {
+        if (list.retrieve() == var) {
             return true;
         }
         return false;
@@ -167,6 +182,9 @@ public class Ranking {
         }
         doc_ranks.findFirst();
         while (!doc_ranks.last()) {
+            if (doc_ranks.retrieve().doc_id == doc.doc_id) {
+                return;
+            }
             if (doc.rank > doc_ranks.retrieve().rank) {
                 Doc_Rank temp = doc_ranks.retrieve();
                 doc_ranks.update(doc);
@@ -189,9 +207,11 @@ public class Ranking {
 
     public void insertSorted_inlist(String query) {
         RankQ(query);
+        doc_ranks = new LinkedList<>();
         if (doc_ids.empty()) {
             return;
         }
+
         doc_ids.findFirst();
         while (!doc_ids.last()) {
             Document d = index.getDocument(doc_ids.retrieve());

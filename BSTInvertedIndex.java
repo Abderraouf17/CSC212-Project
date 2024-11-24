@@ -20,7 +20,7 @@ public class BSTInvertedIndex {
     }
 
     // Explicit search method to find a word in the BST
-    private Word searchWord(String word) {
+    public Word searchWord(String word) {
         BSTNode<Word> current = bst.getRoot();
         while (current != null) {
             int comparison = word.compareTo(current.data.word);
@@ -33,6 +33,10 @@ public class BSTInvertedIndex {
             }
         }
         return null; // Word not found
+    }
+    public LinkedList<Integer> getDocumentListForWord(String word) {
+        Word w = searchWord(word);
+        return (w != null) ? w.indexs : new LinkedList<>();
     }
 
     // Insert method for adding a new word into the BST

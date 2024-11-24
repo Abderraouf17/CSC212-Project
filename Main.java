@@ -1,4 +1,3 @@
-
 import java.util.Scanner;
 
 public class Main {
@@ -7,7 +6,10 @@ public class Main {
         Read reader = new Read();
         InvertedIndex invertedIndex = new InvertedIndex();
         BSTInvertedIndex bstInvertedIndex = new BSTInvertedIndex();
-        Ranking ranking = new Ranking(invertedIndex, reader.index);
+        Ranking rankingWithList = new Ranking(invertedIndex, reader.index); // Ranking for List-based index
+        Ranking rankingWithBST = new Ranking(bstInvertedIndex, reader.index); // Ranking for BST-based index
+        Query queryProcessorWithList = new Query(invertedIndex); // Query with InvertedIndex
+        Query queryProcessorWithBST = new Query(bstInvertedIndex); // Query with BSTInvertedIndex
 
         // Load stop words and documents
         reader.readStopWords("stop.txt");
@@ -16,14 +18,11 @@ public class Main {
         // Process documents and build both inverted indexes
         processDocuments(reader, invertedIndex, bstInvertedIndex);
 
-        // Initialize the Query object
-        Query queryProcessor = new Query(invertedIndex); // Use the desired index for querying
-
         // Display indices
         displayIndices(reader, invertedIndex, bstInvertedIndex);
 
         // Display menu and handle user input
-        displayMenu(queryProcessor, ranking);
+        displayMenu(queryProcessorWithList, queryProcessorWithBST, rankingWithList, rankingWithBST);
     }
 
     private static void processDocuments(Read reader, InvertedIndex invertedIndex, BSTInvertedIndex bstInvertedIndex) {
@@ -39,8 +38,7 @@ public class Main {
         }
     }
 
-    private static void addWordsToIndexes(LinkedList<String> words, int docId, InvertedIndex invertedIndex,
-            BSTInvertedIndex bstInvertedIndex) {
+    private static void addWordsToIndexes(LinkedList<String> words, int docId, InvertedIndex invertedIndex, BSTInvertedIndex bstInvertedIndex) {
         words.findFirst();
         while (!words.empty() && words.retrieve() != null) {
             String word = words.retrieve();
@@ -63,35 +61,52 @@ public class Main {
         bstInvertedIndex.displayIndex();
     }
 
-    private static void displayMenu(Query queryProcessor, Ranking ranking) {
+    private static void displayMenu(Query queryProcessorWithList, Query queryProcessorWithBST, Ranking rankingWithList, Ranking rankingWithBST) {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
 
         while (running) {
             System.out.println("\n====== Search Engine Menu ======");
-            System.out.println("1. AND Query");
-            System.out.println("2. OR Query");
-            System.out.println("3. Complex Query");
-            System.out.println("4. Ranking Query");
-            System.out.println("5. Exit");
+            System.out.println("1. AND Query (List)");
+            System.out.println("2. OR Query (List)");
+            System.out.println("3. AND Query (BST)");
+            System.out.println("4. OR Query (BST)");
+            System.out.println("5. Complex Query (List)");
+            System.out.println("6. Complex Query (BST)");
+            System.out.println("7. Ranked Query (List)");
+            System.out.println("8. Ranked Query (BST)");
+            System.out.println("9. Exit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
-            scanner.nextLine(); // consume the remaining newline
+            scanner.nextLine(); // Consume the remaining newline
 
             switch (choice) {
                 case 1:
+                    handleQuery(queryProcessorWithList, scanner, "AND");
+                    break;
                 case 2:
-                    handleQuery(choice, queryProcessor, scanner);
+                    handleQuery(queryProcessorWithList, scanner, "OR");
                     break;
                 case 3:
-                    handleComplexQuery(queryProcessor, scanner);
+                    handleQuery(queryProcessorWithBST, scanner, "AND");
                     break;
                 case 4:
-                    handleRankingQuery(ranking, scanner);
+                    handleQuery(queryProcessorWithBST, scanner, "OR");
                     break;
-
                 case 5:
+                    handleComplexQuery(queryProcessorWithList, scanner);
+                    break;
+                case 6:
+                    handleComplexQuery(queryProcessorWithBST, scanner);
+                    break;
+                case 7:
+                    handleRankingQuery(rankingWithList, scanner);
+                    break;
+                case 8:
+                    handleRankingQuery(rankingWithBST, scanner);
+                    break;
+                case 9:
                     running = false;
                     System.out.println("Exiting the program...");
                     break;
@@ -99,30 +114,36 @@ public class Main {
                     System.out.println("Invalid option. Please try again.");
             }
         }
+
         scanner.close();
     }
 
-    private static void handleQuery(int type, Query queryProcessor, Scanner scanner) {
+    private static void handleQuery(Query queryProcessor, Scanner scanner, String type) {
         System.out.println("Enter the first word:");
         String word1 = scanner.nextLine();
         System.out.println("Enter the second word:");
         String word2 = scanner.nextLine();
-        String query = word1 + (type == 1 ? " AND " : " OR ") + word2;
+
+        String query = word1 + " " + type + " " + word2;
         LinkedList<Integer> results = queryProcessor.CheckQuery(query);
         queryProcessor.DisplayQuery(results);
-    }
-
-    public static void handleRankingQuery(Ranking ranking, Scanner scanner) {
-        System.out.println("Enter the query:");
-        String query = scanner.nextLine();
-        ranking.insertSorted_inlist(query);
-        ranking.display();
     }
 
     private static void handleComplexQuery(Query queryProcessor, Scanner scanner) {
         System.out.println("Enter a complex query (e.g., 'data AND (structures OR algorithm)'):");
         String complexQuery = scanner.nextLine();
+
         LinkedList<Integer> results = queryProcessor.CheckQuery(complexQuery);
+        System.out.println("\n====== Complex Query Results ======");
         queryProcessor.DisplayQuery(results);
+    }
+
+    private static void handleRankingQuery(Ranking rankingProcessor, Scanner scanner) {
+        System.out.println("Enter the query:");
+        String query = scanner.nextLine();
+
+        rankingProcessor.insertSorted_inlist(query); // Process ranking
+        System.out.println("\n====== Ranked Query Results ======");
+        rankingProcessor.display(); // Display ranked results
     }
 }

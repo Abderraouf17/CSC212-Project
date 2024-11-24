@@ -1,6 +1,5 @@
-
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Scanner;
 
 public class Read {
 
@@ -71,7 +70,7 @@ public class Read {
         for (String token : tokens) {
             if (!stopWords.exist(token)) {
                 if (!words.exist(token)) {
-                    words.insert(token);
+                    words_inDoc.insert(token);
                 }
                 if (!words_inDoc.exist(token)) {
                     words_inDoc.insert(token);
